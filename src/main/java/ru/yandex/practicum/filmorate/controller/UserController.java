@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -25,7 +24,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
+    public User addUser(@RequestBody User user) {
         if (user.getEmail() == null || user.getEmail().isBlank()) {
             log.info("Выявлена ошибка валидации, адрес электронной почты не может быть пустым");
             throw new ValidationException("Адрес электронной почты не может быть пустым.");
@@ -62,10 +61,10 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
+    public User updateUser(@RequestBody User user) {
         if (user.getEmail() == null || user.getEmail().isBlank()) {
             log.info("Выявлена ошибка валидации, адрес электронной почты не может быть пустым");
-            throw new ValidationException("Адрес электронной почты не может быть пустым.");
+            throw new ValidationException("Адрес электронной почты не может быть пустым");
         }
         if (!user.getEmail().contains("@")) {
             log.info("Выявлена ошибка валидации, адрес электронной почты должен иметь @");

@@ -20,6 +20,7 @@ import java.util.List;
 @Builder
 class FilmorateApplicationTests {
 
+
     @Test
     void shouldAddFilm() {
         FilmController filmController = new FilmController();
