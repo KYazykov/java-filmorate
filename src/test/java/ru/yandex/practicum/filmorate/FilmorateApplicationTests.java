@@ -43,6 +43,8 @@ class FilmorateApplicationTests {
         films.add(film);
         films.add(film2);
         Assertions.assertEquals(films.toString(), inMemoryFilmStorage.findAllFilms().toString(), "Добавились не все фильмы");
+        inMemoryFilmStorage.deleteFilm(1L);
+        inMemoryFilmStorage.deleteFilm(2L);
     }
 
     @Test
@@ -67,6 +69,7 @@ class FilmorateApplicationTests {
         List<Film> films = new ArrayList<>();
         films.add(film2);
         Assertions.assertEquals(films.toString(), inMemoryFilmStorage.findAllFilms().toString(), "Добавились не все фильмы");
+        inMemoryFilmStorage.deleteFilm(1L);
     }
 
     @Test
@@ -204,6 +207,8 @@ class FilmorateApplicationTests {
         films.add(film);
         films.add(film2);
         Assertions.assertEquals(films.toString(), inMemoryFilmStorage.findAllFilms().toString(), "Неправильный показ всех фильмов");
+        inMemoryFilmStorage.deleteFilm(1L);
+        inMemoryFilmStorage.deleteFilm(2L);
     }
 
     @Test
@@ -236,6 +241,8 @@ class FilmorateApplicationTests {
         users.add(user2);
         Assertions.assertEquals(users.toString(), inMemoryUserStorage.findAllUsers().toString(),
                 "Добавились не все пользователи");
+        inMemoryUserStorage.deleteUser(1L);
+        inMemoryUserStorage.deleteUser(2L);
     }
 
     @Test
@@ -261,6 +268,7 @@ class FilmorateApplicationTests {
         users.add(user2);
         Assertions.assertEquals(users.toString(), inMemoryUserStorage.findAllUsers().toString(),
                 "Добавились не все пользователи");
+        inMemoryUserStorage.deleteUser(1L);
     }
 
     @Test
@@ -325,6 +333,7 @@ class FilmorateApplicationTests {
             inMemoryUserStorage.addUser(user5);
             inMemoryUserStorage.addUser(user6);
         });
+        inMemoryUserStorage.deleteUser(1L);
     }
 
     @Test
@@ -397,6 +406,8 @@ class FilmorateApplicationTests {
         users.add(user2);
         Assertions.assertEquals(users.toString(), inMemoryUserStorage.findAllUsers().toString(),
                 "Добавились не все пользователи");
+        inMemoryUserStorage.deleteUser(1L);
+        inMemoryUserStorage.deleteUser(2L);
     }
 
     @Test
