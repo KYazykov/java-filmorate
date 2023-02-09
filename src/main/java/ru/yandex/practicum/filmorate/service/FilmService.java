@@ -14,7 +14,6 @@ import java.util.List;
 @Service
 @Slf4j
 public class FilmService extends InMemoryFilmStorage {
-
     InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
 
     @Override
