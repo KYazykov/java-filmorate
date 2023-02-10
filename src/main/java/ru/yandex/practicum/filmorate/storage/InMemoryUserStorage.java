@@ -5,12 +5,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.PostNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -19,9 +17,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     static private final Map<Long, User> users = new HashMap<>();
     public long id = 1;
-    UserService userService;
-
-    public Map<Long, User> getUsers() {
+    static public Map<Long, User> getUsers() {
         return users;
     }
 
@@ -103,25 +99,5 @@ public class InMemoryUserStorage implements UserStorage {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-    }
-
-    @Override
-    public void addFriend(Long userId, Long friendId) {
-        userService.addFriend(userId, friendId);
-    }
-
-    @Override
-    public void deleteFriend(Long userId, Long friendId) {
-        userService.deleteFriend(userId, friendId);
-    }
-
-    @Override
-    public List<User> findAllFriends(Long userId) {
-        return userService.findAllFriends(userId);
-    }
-
-    @Override
-    public List<User> findAllMutualFriends(Long userId, Long friendId) {
-        return userService.findAllMutualFriends(userId, friendId);
     }
 }

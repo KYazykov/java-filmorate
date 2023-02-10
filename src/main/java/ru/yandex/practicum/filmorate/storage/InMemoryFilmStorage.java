@@ -5,12 +5,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.PostNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -18,12 +16,10 @@ import java.util.Map;
 public class InMemoryFilmStorage implements FilmStorage {
 
     static private final Map<Long, Film> films = new HashMap<>();
-    public FilmService filmService;
     long id = 1;
-
-    public Map<Long, Film> getFilms() {
-        return films;
-    }
+   static public Map<Long, Film> getFilms() {
+       return films;
+   }
 
     @Override
     public Collection<Film> findAllFilms() {
@@ -91,20 +87,5 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.info("Выявлена ошибка валидации, продолжительность фильма должна быть положительной");
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
-    }
-
-    @Override
-    public void addLike(Long filmId, Long userId) {
-        filmService.addLike(filmId, userId);
-    }
-
-    @Override
-    public void deleteLike(Long filmId, Long userId) {
-        filmService.deleteLike(filmId, userId);
-    }
-
-    @Override
-    public List<Film> findMostPopularFilms(Long count) {
-        return filmService.findMostPopularFilms(count);
     }
 }
