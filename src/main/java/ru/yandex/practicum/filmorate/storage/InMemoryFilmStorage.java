@@ -15,11 +15,17 @@ import java.util.Map;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    static private final Map<Long, Film> films = new HashMap<>();
-    long id = 1;
-   static public Map<Long, Film> getFilms() {
-       return films;
-   }
+    private final Map<Long, Film> films = new HashMap<>();
+    private long id = 1;
+
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public Map<Long, Film> getFilms() {
+        return films;
+    }
 
     @Override
     public Collection<Film> findAllFilms() {

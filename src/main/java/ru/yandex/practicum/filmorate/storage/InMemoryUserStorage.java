@@ -15,9 +15,15 @@ import java.util.Map;
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
-    static private final Map<Long, User> users = new HashMap<>();
-    public long id = 1;
-    static public Map<Long, User> getUsers() {
+    private final Map<Long, User> users = new HashMap<>();
+    private long id = 1;
+
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public Map<Long, User> getUsers() {
         return users;
     }
 

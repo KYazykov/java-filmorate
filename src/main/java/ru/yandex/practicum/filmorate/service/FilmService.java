@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.PostNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +14,19 @@ import java.util.List;
 @Slf4j
 public class FilmService implements FilmServiceInterface {
 
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
+
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+    }
+
     @Override
     public void addLike(Long filmId, Long userId) {
         checkRequestBodyFilm(filmId, userId);
         log.info("Получен запрос на добавление фильму лайка");
-        Film film = InMemoryFilmStorage.getFilms().get(filmId);
+        Film film = filmStorage.getFilms().get(filmId);
         film.getLikes().add(userId);
     }
 
@@ -26,13 +34,13 @@ public class FilmService implements FilmServiceInterface {
     public void deleteLike(Long filmId, Long userId) {
         checkRequestBodyFilm(filmId, userId);
         log.info("Получен запрос на добавление фильму лайка");
-        Film film = InMemoryFilmStorage.getFilms().get(filmId);
+        Film film = filmStorage.getFilms().get(filmId);
         film.getLikes().remove(userId);
     }
 
     @Override
     public List<Film> findMostPopularFilms(Long count) {
-        List<Film> mostPopularFilms = new ArrayList<>(InMemoryFilmStorage.getFilms().values());
+        List<Film> mostPopularFilms = new ArrayList<>(filmStorage.getFilms().values());
         mostPopularFilms.sort((o1, o2) -> {
             final double film1 = o1.getLikes().size();
             final double film2 = o2.getLikes().size();
@@ -50,11 +58,11 @@ public class FilmService implements FilmServiceInterface {
     }
 
     public void checkRequestBodyFilm(Long filmId, Long userId) {
-        if (!InMemoryFilmStorage.getFilms().containsKey(filmId)) {
+        if (!filmStorage.getFilms().containsKey(filmId)) {
             log.info("Выявлена ошибка валидации, неверный индентификатор");
             throw new PostNotFoundException("Неверный индентификатор");
         }
-        if (InMemoryUserStorage.getUsers().get(userId) == null) {
+        if (userStorage.getUsers().get(userId) == null) {
             log.info("Выявлена ошибка валидации, пользователь с таким id не найден");
             throw new PostNotFoundException("Пользователь с таким id не найден");
         }
