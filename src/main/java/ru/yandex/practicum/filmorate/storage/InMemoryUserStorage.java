@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -16,17 +17,6 @@ import java.util.Map;
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
-    private long id = 1;
-
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public Map<Long, User> getUsers() {
-        return users;
-    }
-
     @Override
     public Collection<User> findAllUsers() {
         return users.values();
@@ -55,10 +45,9 @@ public class InMemoryUserStorage implements UserStorage {
             }
         }
         log.info("Запрос на добавление пользователя");
-        user.setId(id);
+        user.setId(user.getId());
         users.put(user.getId(), user);
-        id++;
-        return user;
+        return users.get(user.getId());
     }
 
     @Override
@@ -72,7 +61,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
         log.info("Запрос на изменение данных пользователя");
         users.put(user.getId(), user);
-        return user;
+        return users.get(user.getId());
     }
 
     @Override
@@ -106,4 +95,25 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
     }
+
+    @Override
+    public List<User> findAllFriends(Long userId) {
+        return null;
+    }
+
+    @Override
+    public void addFriend(Long id, Long friendId) {
+
+    }
+
+    @Override
+    public void deleteFriend(Long id, Long friendId) {
+
+    }
+
+    @Override
+    public List<User> findAllMutualFriends(Long userId, Long friendId) {
+        return null;
+    }
+
 }

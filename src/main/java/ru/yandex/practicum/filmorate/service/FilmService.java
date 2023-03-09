@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.PostNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -12,35 +13,33 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class FilmService implements FilmServiceInterface {
+public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
 
-    @Override
     public void addLike(Long filmId, Long userId) {
         checkRequestBodyFilm(filmId, userId);
         log.info("Получен запрос на добавление фильму лайка");
-        Film film = filmStorage.getFilms().get(filmId);
+        Film film = filmStorage.getFilmById(filmId);
         film.getLikes().add(userId);
     }
 
-    @Override
     public void deleteLike(Long filmId, Long userId) {
         checkRequestBodyFilm(filmId, userId);
         log.info("Получен запрос на добавление фильму лайка");
-        Film film = filmStorage.getFilms().get(filmId);
+        Film film = filmStorage.getFilmById(filmId);
         film.getLikes().remove(userId);
     }
 
-    @Override
     public List<Film> findMostPopularFilms(Long count) {
-        List<Film> mostPopularFilms = new ArrayList<>(filmStorage.getFilms().values());
+        List<Film> mostPopularFilms = new ArrayList<>(filmStorage.findAllFilms());
         mostPopularFilms.sort((o1, o2) -> {
             final double film1 = o1.getLikes().size();
             final double film2 = o2.getLikes().size();
@@ -58,11 +57,11 @@ public class FilmService implements FilmServiceInterface {
     }
 
     public void checkRequestBodyFilm(Long filmId, Long userId) {
-        if (!filmStorage.getFilms().containsKey(filmId)) {
+        if (filmStorage.getFilmById(filmId) == null) {
             log.info("Выявлена ошибка валидации, неверный индентификатор");
             throw new PostNotFoundException("Неверный индентификатор");
         }
-        if (userStorage.getUsers().get(userId) == null) {
+        if (userStorage.getUserById(userId) == null) {
             log.info("Выявлена ошибка валидации, пользователь с таким id не найден");
             throw new PostNotFoundException("Пользователь с таким id не найден");
         }

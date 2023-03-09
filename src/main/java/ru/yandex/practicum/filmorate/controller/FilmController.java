@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import javax.validation.Valid;
@@ -18,52 +19,55 @@ import java.util.List;
 public class FilmController {
     private final InMemoryFilmStorage inMemoryFilmStorage;
     private final FilmService filmService;
+    private final FilmDbStorage filmDbStorage;
 
     @GetMapping
     public Collection<Film> findAllFilms() {
-        return inMemoryFilmStorage.findAllFilms();
+        return filmDbStorage.findAllFilms();
     }
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
         inMemoryFilmStorage.checkRequestBodyFilm(film);
-        return inMemoryFilmStorage.addFilm(film);
+        filmDbStorage.addFilm(film);
+        return film;
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         inMemoryFilmStorage.checkRequestBodyFilm(film);
-        return inMemoryFilmStorage.updateFilm(film);
+        filmDbStorage.updateFilm(film);
+        return film;
     }
 
     @DeleteMapping("/{id}")
     public void deleteFilm(@PathVariable("id") Long filmId) {
-        inMemoryFilmStorage.deleteFilm(filmId);
+        filmDbStorage.deleteFilm(filmId);
     }
 
     @GetMapping("/{id}")
     public Film getFilm(@PathVariable("id") Long filmId) {
-        return inMemoryFilmStorage.getFilmById(filmId);
+        return filmDbStorage.getFilmById(filmId);
     }
 
     @PutMapping("/{id}/like/{userId}")
     public void addLike(
             @PathVariable("id") Long filmId,
             @PathVariable("userId") Long userId) {
-        filmService.addLike(filmId, userId);
+        filmDbStorage.addLike(filmId, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLike(
             @PathVariable("id") Long filmId,
             @PathVariable("userId") Long userId) {
-        filmService.deleteLike(filmId, userId);
+        filmDbStorage.deleteLike(filmId, userId);
     }
 
     @GetMapping("/popular")
     public List<Film> findMostPopularFilms(
             @RequestParam(defaultValue = "10", required = false) Long count) {
-        return filmService.findMostPopularFilms(count);
+        return filmDbStorage.findMostPopularFilms(count);
     }
 }
 

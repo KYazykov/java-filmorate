@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -16,16 +17,6 @@ import java.util.Map;
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> films = new HashMap<>();
-    private long id = 1;
-
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public Map<Long, Film> getFilms() {
-        return films;
-    }
 
     @Override
     public Collection<Film> findAllFilms() {
@@ -46,10 +37,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film addFilm(Film film) {
         checkRequestBodyFilm(film);
         log.info("Получен запрос на добавление фильма.");
-        film.setId(id);
+        film.setId(film.getId());
         films.put(film.getId(), film);
-        id++;
-        return film;
+        return films.get(film.getId());
     }
 
     @Override
@@ -63,7 +53,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         log.info("Получен запрос на изменение информации о фильме");
         films.put(film.getId(), film);
-        return film;
+        return films.get(film.getId());
     }
 
     @Override
@@ -93,5 +83,20 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.info("Выявлена ошибка валидации, продолжительность фильма должна быть положительной");
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
+    }
+
+    @Override
+    public void addLike(Long filmId, Long userId) {
+
+    }
+
+    @Override
+    public void deleteLike(Long filmId, Long userId) {
+
+    }
+
+    @Override
+    public List<Film> findMostPopularFilms(Long count) {
+        return null;
     }
 }
