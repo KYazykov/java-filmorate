@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import javax.validation.Valid;
@@ -18,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final InMemoryUserStorage inMemoryUserStorage;
     private final UserService userService;
     private final UserDbStorage userDbStorage;
 
@@ -29,14 +27,14 @@ public class UserController {
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
-        inMemoryUserStorage.checkRequestBodyUser(user);
+        userService.checkRequestBodyUser(user);
         userDbStorage.addUser(user);
         return userDbStorage.getUserById(user.getId());
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        inMemoryUserStorage.checkRequestBodyUser(user);
+        userService.checkRequestBodyUser(user);
         userDbStorage.updateUser(user);
         return userDbStorage.getUserById(user.getId());
     }

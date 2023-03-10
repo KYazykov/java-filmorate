@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -17,7 +16,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-    private final InMemoryFilmStorage inMemoryFilmStorage;
+
     private final FilmService filmService;
     private final FilmDbStorage filmDbStorage;
 
@@ -28,14 +27,14 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        inMemoryFilmStorage.checkRequestBodyFilm(film);
+        filmService.checkRequestBodyFilm(film);
         filmDbStorage.addFilm(film);
         return film;
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-        inMemoryFilmStorage.checkRequestBodyFilm(film);
+        filmService.checkRequestBodyFilm(film);
         filmDbStorage.updateFilm(film);
         return film;
     }

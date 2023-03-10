@@ -26,14 +26,17 @@ public class MpaDbStorage implements MpaStorage {
                 (rs, rowNum) -> new Mpa(rs.getInt("MPA_ID"), rs.getString("RATING_NAME"))
                 , mpaId);
         if (ratingList.size() > 0) {
+            log.info("Запрос на выдачу Мпа рейтинга с id: {}", mpaId);
             return ratingList.get(0);
         }
+        log.info(" Мпа рейтинг с id: {} не найден", mpaId);
         throw new PostNotFoundException("Рейтинг мпа не найден");
     }
 
     @Override
     public List<Mpa> findAllMpa() {
         String sql = "SELECT * FROM mpa ORDER BY MPA_ID;";
+        log.info("Запрос на выдачу всех Мпа рейтингов");
         return jdbcTemplate.query(sql,
                 (rs, rowNum) -> new Mpa(rs.getInt("MPA_ID"), rs.getString("RATING_NAME")));
     }

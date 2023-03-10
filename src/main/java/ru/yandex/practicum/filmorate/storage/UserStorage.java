@@ -25,4 +25,6 @@ public interface UserStorage {
 
     List<User> findAllMutualFriends(Long userId, Long friendId);
 
+    boolean isUserExist(long userId);
+
 }

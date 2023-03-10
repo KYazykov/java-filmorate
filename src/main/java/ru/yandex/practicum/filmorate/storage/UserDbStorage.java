@@ -38,7 +38,9 @@ public class UserDbStorage implements UserStorage {
     }
 
     public boolean isUserExist(long userId) {
-        String sql = "SELECT COUNT(*) FROM USERS WHERE USER_ID = ? ;";
+        String sql = "SELECT COUNT(*) " +
+                "FROM USERS" +
+                " WHERE USER_ID = ? ;";
         int countUser = jdbcTemplate.queryForObject(sql, Integer.class, userId);
 
         return countUser > 0;
@@ -47,17 +49,21 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Collection<User> findAllUsers() {
         String sql = "SELECT * FROM USERS;";
-
+        log.info("Запрос на выдачу всех пользователей");
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs));
     }
 
     @Override
     public User getUserById(Long userId) {
         if (isUserExist(userId)) {
-            String sql = "SELECT * FROM USERS WHERE USER_ID = ? ;";
+            String sql = "SELECT * " +
+                    "FROM USERS " +
+                    "WHERE USER_ID = ? ;";
             List<User> users = jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId);
+            log.info("Запрос на выдачу пользователя с id: {}", userId);
             return users.get(0);
         } else {
+            log.info("Пользователь с id: {} не найден", userId);
             throw new PostNotFoundException("Пользователь с таким id не найден");
         }
     }
@@ -81,6 +87,7 @@ public class UserDbStorage implements UserStorage {
             return stmt;
         }, keyHolder);
         user.setId(keyHolder.getKey().longValue());
+        log.info("Запрос на добавление пользователя");
         return getUserById(user.getId());
     }
 
@@ -100,8 +107,10 @@ public class UserDbStorage implements UserStorage {
                     , user.getName()
                     , Date.valueOf(user.getBirthday())
                     , user.getId());
+            log.info("Запрос на обновление пользователя");
             return getUserById(user.getId());
         } else {
+            log.info("Пользователь с таким id не найден");
             throw new PostNotFoundException("Пользователь с таким id не найден");
         }
     }
@@ -111,7 +120,9 @@ public class UserDbStorage implements UserStorage {
         if (isUserExist(userId)) {
             String sql = "DELETE FROM users WHERE user_id = ?";
             jdbcTemplate.update(sql, userId);
+            log.info("Запрос на удаление пользователя с id: {}", userId);
         } else {
+            log.info("Пользователь с id: {} не найден", userId);
             throw new PostNotFoundException("Пользователь с таким id не найден");
         }
     }
@@ -121,7 +132,9 @@ public class UserDbStorage implements UserStorage {
         if (isUserExist(userId) && isUserExist(friendId)) {
             String sql = "INSERT INTO FRIENDSHIP(USER_ID, FRIEND_ID, STATUS) VALUES (?, ?, ?)";
             jdbcTemplate.update(sql, userId, friendId, "CONFIRMED");
+            log.info("Запрос на добавление друга с id: {} пользователем с id: {}", friendId, userId);
         } else {
+            log.info("Друг с id: {} или пользователь с id: {} не найден", friendId, userId);
             throw new PostNotFoundException("Один из пользователей с таким id не найден");
         }
     }
@@ -131,7 +144,9 @@ public class UserDbStorage implements UserStorage {
         if (isUserExist(userId) && isUserExist(friendId)) {
             String sql = "DELETE FROM FRIENDSHIP WHERE USER_ID = ? AND FRIEND_ID = ?;";
             jdbcTemplate.update(sql, userId, friendId);
+            log.info("Запрос на удаление друга с id: {} пользователем с id: {}", friendId, userId);
         } else {
+            log.info("Друг с id: {} или пользователь с id: {} не найден", friendId, userId);
             throw new PostNotFoundException("Один из пользователей с таким id не найден");
         }
     }
@@ -139,12 +154,17 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> findAllFriends(Long userId) {
         if (isUserExist(userId)) {
-            String sql = "SELECT * FROM USERS " +
+            String sql = "SELECT * " +
+                    "FROM USERS " +
                     " WHERE USER_ID IN " +
-                    " (SELECT FRIEND_ID FROM FRIENDSHIP WHERE USER_ID = ? AND STATUS = 'CONFIRMED');";
-
+                    " (SELECT FRIEND_ID " +
+                    "FROM FRIENDSHIP " +
+                    "WHERE USER_ID = ? " +
+                    "AND STATUS = 'CONFIRMED');";
+            log.info("Запрос на выдачу всех друзей пользователя с id: {}", userId);
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId);
         } else {
+            log.info("Пользователь с id: {} не найден", userId);
             throw new PostNotFoundException("Пользователь с таким id не найден");
         }
     }
@@ -152,13 +172,23 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> findAllMutualFriends(Long userId, Long friendId) {
         if (isUserExist(userId) && isUserExist(friendId)) {
-            String sql = "SELECT * FROM USERS WHERE USER_ID IN( " +
-                    "SELECT DISTINCT(FRIEND_ID) FROM FRIENDSHIP WHERE USER_ID = ? AND STATUS = 'CONFIRMED' " +
-                    " AND FRIEND_ID IN (SELECT FRIEND_ID FROM FRIENDSHIP WHERE USER_ID = ? AND STATUS = 'CONFIRMED')" +
+            String sql = "SELECT * " +
+                    "FROM USERS " +
+                    "WHERE USER_ID IN " +
+                    "(SELECT DISTINCT(FRIEND_ID) " +
+                    "FROM FRIENDSHIP " +
+                    "WHERE USER_ID = ? " +
+                    "AND STATUS = 'CONFIRMED' " +
+                    "AND FRIEND_ID IN " +
+                    "(SELECT FRIEND_ID " +
+                    "FROM FRIENDSHIP " +
+                    "WHERE USER_ID = ? " +
+                    "AND STATUS = 'CONFIRMED')" +
                     " );";
-
+            log.info("Запрос выдачу всех совместных друзей с другом с id: {} пользователем с id: {}", friendId, userId);
             return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId, friendId);
         } else {
+            log.info("Друг с id: {} или пользователь с id: {} не найден", friendId, userId);
             throw new PostNotFoundException("Один из пользователей с таким id не найден");
         }
     }

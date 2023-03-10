@@ -4,9 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.PostNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public class UserService {
 
 
     public void addFriend(Long userId, Long friendId) {
-        checkRequestBodyUser(userId, friendId);
+        checkRequestBodyUserForFriends(userId, friendId);
         log.info("Запрос на добавление друга");
         User user = userStorage.getUserById(userId);
         User friend = userStorage.getUserById(friendId);
@@ -34,7 +36,7 @@ public class UserService {
 
 
     public void deleteFriend(Long userId, Long friendId) {
-        checkRequestBodyUser(userId, friendId);
+        checkRequestBodyUserForFriends(userId, friendId);
         log.info("Запрос на удаление друга");
         User user = userStorage.getUserById(userId);
         User friend = userStorage.getUserById(friendId);
@@ -58,7 +60,7 @@ public class UserService {
     }
 
     public List<User> findAllMutualFriends(Long userId, Long friendId) {
-        checkRequestBodyUser(userId, friendId);
+        checkRequestBodyUserForFriends(userId, friendId);
         log.info("Запрос на показ всех общих друзей");
         User user = userStorage.getUserById(userId);
         ;
@@ -77,7 +79,7 @@ public class UserService {
         return friends.stream().filter(friendsAnotherUser::contains).collect(toList());
     }
 
-    public void checkRequestBodyUser(Long userId, Long friendId) {
+    public void checkRequestBodyUserForFriends(Long userId, Long friendId) {
         if (userStorage.getUserById(userId) == null) {
             log.info("Выявлена ошибка валидации, пользователь с таким id не найден");
             throw new PostNotFoundException("Пользователь с таким id не найден");
@@ -86,5 +88,31 @@ public class UserService {
             log.info("Выявлена ошибка валидации, добавляемый пользователь с таким id не найден");
             throw new PostNotFoundException("Добавляемый пользователь с таким id не найден");
         }
+    }
+
+    public void checkRequestBodyUser(User user) {
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            log.info("Выявлена ошибка валидации, адрес электронной почты не может быть пустым");
+            throw new ValidationException("Адрес электронной почты не может быть пустым.");
+        }
+        if (!user.getEmail().contains("@")) {
+            log.info("Выявлена ошибка валидации, адрес электронной почты должен иметь @");
+            throw new ValidationException("Адрес электронной почты должен иметь @");
+        }
+        if (!user.getLogin().equals(user.getLogin().trim())) {
+            log.info("Выявлена ошибка валидации, логин не должен иметь пробелы");
+            throw new ValidationException("Логин не должен иметь пробелы");
+        }
+        if (user.getBirthday().isAfter(LocalDate.now())) {
+            log.info("Выявлена ошибка валидации, дата рождения не может быть в будущем");
+            throw new ValidationException("Дата рождения не может быть в будущем");
+        }
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+    }
+
+    public boolean isUserExist(long userId) {
+        return userStorage.isUserExist(userId);
     }
 }

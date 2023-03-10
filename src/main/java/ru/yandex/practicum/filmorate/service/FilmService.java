@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.PostNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,14 +27,14 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        checkRequestBodyFilm(filmId, userId);
+        checkRequestBodyFilmForLikes(filmId, userId);
         log.info("Получен запрос на добавление фильму лайка");
         Film film = filmStorage.getFilmById(filmId);
         film.getLikes().add(userId);
     }
 
     public void deleteLike(Long filmId, Long userId) {
-        checkRequestBodyFilm(filmId, userId);
+        checkRequestBodyFilmForLikes(filmId, userId);
         log.info("Получен запрос на добавление фильму лайка");
         Film film = filmStorage.getFilmById(filmId);
         film.getLikes().remove(userId);
@@ -56,7 +58,7 @@ public class FilmService {
         return films;
     }
 
-    public void checkRequestBodyFilm(Long filmId, Long userId) {
+    public void checkRequestBodyFilmForLikes(Long filmId, Long userId) {
         if (filmStorage.getFilmById(filmId) == null) {
             log.info("Выявлена ошибка валидации, неверный индентификатор");
             throw new PostNotFoundException("Неверный индентификатор");
@@ -64,6 +66,25 @@ public class FilmService {
         if (userStorage.getUserById(userId) == null) {
             log.info("Выявлена ошибка валидации, пользователь с таким id не найден");
             throw new PostNotFoundException("Пользователь с таким id не найден");
+        }
+    }
+
+    public void checkRequestBodyFilm(Film film) {
+        if (film.getName() == null || film.getName().isBlank()) {
+            log.info("Выявлена ошибка валидации, название фильма не может быть пустым");
+            throw new ValidationException("Название фильма не может быть пустым");
+        }
+        if (film.getDescription().length() > 200) {
+            log.info("Выявлена ошибка валидации, описание фильма должно быть не более 200 симоволов");
+            throw new ValidationException("Описание фильма должно быть не более 200 симоволов");
+        }
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            log.info("Выявлена ошибка валидации, дата релиза фильма не может быть раньше 29 декабря 1895 года");
+            throw new ValidationException("Дата релиза фильма не может быть раньше 29 декабря 1895 года");
+        }
+        if (film.getDuration() <= 0) {
+            log.info("Выявлена ошибка валидации, продолжительность фильма должна быть положительной");
+            throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
     }
 }

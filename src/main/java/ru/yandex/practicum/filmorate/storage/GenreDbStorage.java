@@ -26,8 +26,10 @@ public class GenreDbStorage implements GenreStorage {
                 (rs, rowNum) -> new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME"))
                 , genreId);
         if (genres.size() > 0) {
+            log.info("Запрос на выдачу жанра с id: {}", genreId);
             return genres.get(0);
         }
+        log.info("Жанр с id: {} не найден", genreId);
         throw new PostNotFoundException("Жанр не найден");
     }
 
@@ -35,7 +37,7 @@ public class GenreDbStorage implements GenreStorage {
     public List<Genre> getFilmGenres(long filmId) {
         String sql = "SELECT * FROM GENRES WHERE GENRE_ID IN (SELECT GENRE_ID FROM FILM_GENRES WHERE FILM_ID = ?) " +
                 " ORDER BY GENRE_ID;";
-
+        log.info("Запрос на выдачу всех жанров фильма с id: {}", filmId);
         return jdbcTemplate.query(sql,
                 (rs, rowNum) -> new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME"))
                 , filmId);
@@ -44,6 +46,7 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public List<Genre> findAllGenres() {
         String sql = "SELECT * FROM GENRES ORDER BY GENRE_ID;";
+        log.info("Запрос на выдачу всех жанров");
         return jdbcTemplate.query(sql,
                 (rs, rowNum) -> new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME")));
     }
